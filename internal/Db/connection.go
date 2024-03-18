@@ -26,7 +26,8 @@ func Prepare() error {
 CREATE TABLE IF NOT EXISTS films (
 	id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	name TEXT NOT NULL,
-	year INTEGER NOT NULL,
+	description TEXT NOT NULL,
+	date DATE NOT NULL,
 	rating INT8 NOT NULL
 );
 
@@ -44,7 +45,7 @@ CREATE TABLE IF NOT EXISTS actors (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name TEXT NOT NULL,
     gender sex NOT NULL,
-    birth_date TIME NOT NULL
+    birth_date DATE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS actors_films (

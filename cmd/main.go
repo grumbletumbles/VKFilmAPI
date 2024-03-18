@@ -2,6 +2,8 @@ package main
 
 import (
 	"VKFilmAPI/internal/Db"
+	"VKFilmAPI/internal/Models"
+	"fmt"
 	"log"
 )
 
@@ -23,4 +25,14 @@ func main() {
 		log.Fatal(err.Error())
 	}
 	log.Println("database successfully configured")
+
+	films, err := Models.GetAllFilms(db)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	log.Println("ok")
+
+	for _, film := range films {
+		fmt.Println(film)
+	}
 }
