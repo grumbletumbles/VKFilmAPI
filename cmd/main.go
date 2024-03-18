@@ -26,7 +26,7 @@ func main() {
 	}
 	log.Println("database successfully configured")
 
-	actors, err := Models.GetAllActorsWithFilms(db)
+	actors, err := Models.GetAllFilmsByActorPart(db, "Roman Dmitrievich Makarevich")
 	if err != nil {
 		log.Fatal(err.Error())
 	}

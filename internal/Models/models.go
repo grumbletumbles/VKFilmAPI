@@ -2,7 +2,9 @@ package Models
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
+	"regexp"
 	"time"
 )
 
@@ -174,11 +176,55 @@ func GetAllActorsWithFilms(db *sql.DB) ([]ActorWithFilms, error) {
 }
 
 /*
-func GetAllFilmsByFilmPart(db *sql.DB, filmNamePart string) ([]Film, error) {
+Note: the regex should be replaced with finding the substring since .* is
+insanely ineffective and requires a lot of backtracking
+*/
 
+func GetAllFilmsByFilmPart(db *sql.DB, filmNamePart string) ([]Film, error) {
+	films, err := GetAllFilms(db)
+	if err != nil {
+		return nil, err
+	}
+	var result []Film
+	matchString := fmt.Sprintf(".*(%s).*", filmNamePart)
+	re, err := regexp.Compile(matchString)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, film := range films {
+		if re.MatchString(film.Name) {
+			result = append(result, film)
+		}
+	}
+
+	return result, nil
 }
 
 func GetAllFilmsByActorPart(db *sql.DB, actorNamePart string) ([]Film, error) {
+	films, err := GetAllFilms(db)
+	if err != nil {
+		return nil, err
+	}
+	var result []Film
+	matchString := fmt.Sprintf(".*(%s).*", actorNamePart)
+	re, err := regexp.Compile(matchString)
+	if err != nil {
+		return nil, err
+	}
 
+	for _, film := range films {
+		found := false
+		for _, actor := range film.Actors {
+			if re.MatchString(actor.Name) {
+				found = true
+				break
+			}
+		}
+		if found {
+			result = append(result, film)
+		}
+	}
+
+	return result, nil
 }
-*/
