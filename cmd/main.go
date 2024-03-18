@@ -26,13 +26,13 @@ func main() {
 	}
 	log.Println("database successfully configured")
 
-	films, err := Models.GetAllFilms(db)
+	actors, err := Models.GetAllActorsWithFilms(db)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 	log.Println("ok")
 
-	for _, film := range films {
-		fmt.Println(film)
+	for _, actor := range actors {
+		fmt.Println(actor)
 	}
 }

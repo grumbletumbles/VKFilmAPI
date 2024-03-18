@@ -2,8 +2,18 @@ package Models
 
 import (
 	"database/sql"
+	"log"
 	"time"
 )
+
+func contains(s []interface{}, e interface{}) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
 
 type Sex int8
 
@@ -21,12 +31,14 @@ func MakeSexFromString(str string) Sex {
 }
 
 type Actor struct {
+	Id        int
 	Name      string    `json:"name"`
 	Gender    Sex       `json:"gender"`
 	BirthDate time.Time `json:"birth_date"`
 }
 
 type Film struct {
+	Id          int
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Date        time.Time `json:"date"`
@@ -51,6 +63,7 @@ func GetAllFilms(db *sql.DB) ([]Film, error) {
 			return nil, err
 		}
 		actors[id] = Actor{
+			Id:        id,
 			Name:      name,
 			Gender:    MakeSexFromString(gender),
 			BirthDate: birthdate,
@@ -92,6 +105,7 @@ func GetAllFilms(db *sql.DB) ([]Film, error) {
 			return nil, err
 		}
 		films = append(films, Film{
+			Id:          id,
 			Name:        name,
 			Description: description,
 			Date:        date,
@@ -108,11 +122,58 @@ type ActorWithFilms struct {
 	Films []Film `json:"films"`
 }
 
-/*
 func GetAllActorsWithFilms(db *sql.DB) ([]ActorWithFilms, error) {
+	actors := make(map[int]ActorWithFilms)
+	actorQuery := "SELECT * FROM actors;"
+	res1, err := db.Query(actorQuery)
+	if err != nil {
+		return nil, err
+	}
+	for res1.Next() {
+		var id int
+		var name string
+		var gender string
+		var birthdate time.Time
+		err = res1.Scan(&id, &name, &gender, &birthdate)
+		if err != nil {
+			return nil, err
+		}
+		actors[id] = ActorWithFilms{
+			Actor: Actor{
+				Id:        id,
+				Name:      name,
+				Gender:    MakeSexFromString(gender),
+				BirthDate: birthdate,
+			},
+			Films: nil,
+		}
+	}
 
+	films, err := GetAllFilms(db)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, film := range films {
+		for _, a := range film.Actors {
+			if entry, ok := actors[a.Id]; ok {
+				entry.Films = append(entry.Films, film)
+				actors[a.Id] = entry
+			} else {
+				log.Printf("cannot find actor %s in database for %s\n", a.Name, film.Name)
+			}
+		}
+	}
+
+	var result []ActorWithFilms
+	for _, t := range actors {
+		result = append(result, t)
+	}
+
+	return result, nil
 }
 
+/*
 func GetAllFilmsByFilmPart(db *sql.DB, filmNamePart string) ([]Film, error) {
 
 }
